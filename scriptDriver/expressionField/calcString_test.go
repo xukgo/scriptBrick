@@ -32,7 +32,7 @@ func BenchmarkCalcString1(b *testing.B) {
 type SumStringMinor struct {
 }
 
-func (this *SumStringMinor) EvalScript(ctx interface{}, args ...string) (interface{}, error) {
+func (this *SumStringMinor) Eval(ctx interface{}, args ...string) (interface{}, error) {
 	var sum float64
 	for idx := range args {
 		str := fmt.Sprintf("%v", args[idx])
@@ -43,4 +43,14 @@ func (this *SumStringMinor) EvalScript(ctx interface{}, args ...string) (interfa
 		sum += v
 	}
 	return sum, nil
+}
+
+func (this *SumStringMinor) CheckArgValid(ctx interface{}, args ...string) error {
+	if len(args) == 0{
+		return fmt.Errorf("args count cannot be 0")
+	}
+	return nil
+}
+func (this *SumStringMinor) CheckArgCount(count int) bool {
+	return count > 0
 }

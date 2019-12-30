@@ -2,6 +2,7 @@ package unitTest
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/xukgo/scriptBrick/scriptDriver/funcField"
 	"strconv"
 	"testing"
@@ -36,7 +37,7 @@ func BenchmarkFuncDefine1(b *testing.B) {
 type SumMinor struct {
 }
 
-func (this *SumMinor) EvalScript(ctx interface{}, args ...string) (interface{}, error) {
+func (this *SumMinor) Eval(ctx interface{}, args ...string) (interface{}, error) {
 	var sum float64
 	for idx := range args {
 		v, err := strconv.ParseFloat(args[idx], 64)
@@ -48,6 +49,17 @@ func (this *SumMinor) EvalScript(ctx interface{}, args ...string) (interface{}, 
 	return sum, nil
 }
 
+func (this *SumMinor) CheckArgValid(ctx interface{}, args ...string) error {
+	if len(args) == 0{
+		return fmt.Errorf("args count cannot be 0")
+	}
+	return nil
+}
+func (this *SumMinor) CheckArgCount(count int) bool {
+	return count > 0
+}
+
+
 //每个参数都是数字
 //func (this *SumMinor) CheckParams(args ...string) error {
 //
@@ -56,7 +68,7 @@ func (this *SumMinor) EvalScript(ctx interface{}, args ...string) (interface{}, 
 type StringJoinMinor struct {
 }
 
-func (this *StringJoinMinor) EvalScript(ctx interface{}, args ...string) (interface{}, error) {
+func (this *StringJoinMinor) Eval(ctx interface{}, args ...string) (interface{}, error) {
 	bf := new(bytes.Buffer)
 	for idx := range args {
 		bf.WriteString(args[idx])
@@ -64,6 +76,14 @@ func (this *StringJoinMinor) EvalScript(ctx interface{}, args ...string) (interf
 	return bf.String(), nil
 }
 
-//func (this *StringJoinMinor) CheckParams(args ...string) error {
-//
-//}
+func (this *StringJoinMinor) CheckArgValid(ctx interface{}, args ...string) error {
+	if len(args) < 2{
+		return fmt.Errorf("args count must >= 2")
+	}
+	return nil
+}
+
+func (this *StringJoinMinor) CheckArgCount(count int) bool {
+	return count >= 2
+}
+

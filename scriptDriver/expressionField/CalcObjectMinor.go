@@ -31,6 +31,7 @@ func (this *CalcObjectMinor) Init(exp string) error {
 	if err != nil {
 		return err
 	}
+
 	for idx := range msegs {
 		funseg := msegs[idx]
 		rootDefine, err := funcField.ParseObjectFuncDefine(funseg)
@@ -46,6 +47,32 @@ func (this *CalcObjectMinor) Init(exp string) error {
 		exp = strings.ReplaceAll(exp, funseg, formatSegIndex(idx))
 	}
 	this.exp = exp
+
+	for idx := range this.funMinors{
+		err := checkObjectMinorArgCountValid(this.funMinors[idx])
+		if err != nil{
+			return err
+		}
+	}
+	return nil
+}
+
+func checkObjectMinorArgCountValid(item *funcField.FuncObjectMinor)error {
+	if !item.RealFuncMinor.CheckArgCount(len(item.FuncArgs)){
+		return fmt.Errorf("%s func args count is not valid, count is %d",item.FuncName, len(item.FuncArgs))
+	}
+
+	for idx := range item.FuncArgs{
+		if item.FuncArgs[idx].MType != funcField.TYPE_FUNC{
+			continue
+		}
+
+		err := checkObjectMinorArgCountValid(item.FuncArgs[idx].Func)
+		if err != nil{
+			return err
+		}
+	}
+
 	return nil
 }
 

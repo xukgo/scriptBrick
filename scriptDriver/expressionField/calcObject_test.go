@@ -32,7 +32,7 @@ func BenchmarkCalcObject1(b *testing.B) {
 type SumObjectMinor struct {
 }
 
-func (this *SumObjectMinor) EvalInstance(ctx interface{}, args ...interface{}) (interface{}, error) {
+func (this *SumObjectMinor) Eval(ctx interface{}, args ...interface{}) (interface{}, error) {
 	var sum float64
 	for idx := range args {
 		str := fmt.Sprintf("%v", args[idx])
@@ -43,4 +43,15 @@ func (this *SumObjectMinor) EvalInstance(ctx interface{}, args ...interface{}) (
 		sum += v
 	}
 	return sum, nil
+}
+
+func (this *SumObjectMinor) CheckArgValid(ctx interface{}, args ...interface{}) error {
+	if len(args) == 0{
+		return fmt.Errorf("args count cannot be 0")
+	}
+	return nil
+}
+
+func (this *SumObjectMinor) CheckArgCount(count int) bool {
+	return count > 0
 }

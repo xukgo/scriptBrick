@@ -49,7 +49,7 @@ func (this *FuncObjectMinor) Excute(ctx interface{}) (interface{}, error) {
 			arr = append(arr, this.FuncArgs[idx].Content)
 		}
 	}
-	return this.RealFuncMinor.EvalInstance(ctx, arr...)
+	return this.RealFuncMinor.Eval(ctx, arr...)
 }
 
 func (this *FuncObjectMinor) InitFunc(factory map[string]IScriptObjectMinor) error {

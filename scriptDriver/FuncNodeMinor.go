@@ -68,7 +68,7 @@ func (this *FuncNodeMinor) initFuncArg(dict map[string]IScriptMinor) error {
 	if !find {
 		return fmt.Errorf("func name is not found instance:%s", this.FuncName)
 	}
-	this.RealFuncMinor = f.Clone()
+	this.RealFuncMinor = f.CloneBasic()
 
 	for idx := range this.FuncArgs {
 		if this.FuncArgs[idx].MType == TYPE_FUNC {

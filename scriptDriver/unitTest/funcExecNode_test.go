@@ -82,7 +82,7 @@ func BenchmarkCalcObject3(b *testing.B) {
 type SumObjectMinor struct {
 }
 
-func (this *SumObjectMinor) Clone() scriptDriver.IScriptMinor {
+func (this *SumObjectMinor) CloneBasic() scriptDriver.IScriptMinor {
 	return this
 }
 

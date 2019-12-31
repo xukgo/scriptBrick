@@ -6,7 +6,7 @@ type CalcExpBrick struct {
 	funcDot *CalcFuncDot
 }
 
-func (this *CalcExpBrick) Clone() scriptDriver.IScriptMinor {
+func (this *CalcExpBrick) CloneBasic() scriptDriver.IScriptMinor {
 	return new(CalcExpBrick)
 }
 func (this *CalcExpBrick) Eval(ctx interface{}, args ...interface{}) (interface{}, error) {

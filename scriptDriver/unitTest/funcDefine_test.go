@@ -17,7 +17,7 @@ package unitTest
 //	}
 //
 //	for i := 0; i < b.N; i++ {
-//		val, err := rootDefine.Excute(nil)
+//		val, err := rootDefine.Build(nil)
 //		if err != nil {
 //			b.Fail()
 //		}

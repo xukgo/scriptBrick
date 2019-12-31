@@ -4,19 +4,19 @@ import (
 	"fmt"
 )
 
-func InitFuncDefine(dict map[string]IScriptMinor, fdefine *FuncNodeMinor) error {
+func InitFuncDefine(dict map[string]IScriptBrick, brick *Brick) error {
 	var err error
-	err = fdefine.InitFunc(dict)
+	err = brick.InitFunc(dict)
 	if err != nil {
 		return err
 	}
 
-	err = correctArg(dict, fdefine)
+	err = correctArg(dict, brick)
 	if err != nil {
 		return err
 	}
 
-	err = CheckMinorArgCountValid(fdefine)
+	err = CheckMinorArgCountValid(brick)
 	if err != nil {
 		return err
 	}
@@ -24,7 +24,7 @@ func InitFuncDefine(dict map[string]IScriptMinor, fdefine *FuncNodeMinor) error 
 	return nil
 }
 
-func correctArg(dict map[string]IScriptMinor, item *FuncNodeMinor) error {
+func correctArg(dict map[string]IScriptBrick, item *Brick) error {
 	if item.RealFuncMinor == nil {
 		return nil
 	}
@@ -51,7 +51,7 @@ func correctArg(dict map[string]IScriptMinor, item *FuncNodeMinor) error {
 	return nil
 }
 
-func CheckMinorArgCountValid(item *FuncNodeMinor) error {
+func CheckMinorArgCountValid(item *Brick) error {
 	if !item.RealFuncMinor.CheckArgCount(len(item.FuncArgs)) {
 		return fmt.Errorf("%s func args count is not valid, count is %d", item.FuncName, len(item.FuncArgs))
 	}

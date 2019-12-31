@@ -3,14 +3,14 @@ package brick
 import "github.com/xukgo/scriptBrick/scriptDriver"
 
 type CalcExpBrick struct {
-	funcDot *CalcFuncDot
+	calcNode *CalcBrickNode
 }
 
-func (this *CalcExpBrick) CloneBasic() scriptDriver.IScriptMinor {
+func (this *CalcExpBrick) CloneBasic() scriptDriver.IScriptBrick {
 	return new(CalcExpBrick)
 }
 func (this *CalcExpBrick) Eval(ctx interface{}, args ...interface{}) (interface{}, error) {
-	return this.funcDot.Calc(ctx)
+	return this.calcNode.Calc(ctx)
 }
 
 func (this *CalcExpBrick) CheckArgCount(count int) bool {
@@ -21,18 +21,18 @@ func (this *CalcExpBrick) GetIsExpressionArg(index int) bool {
 	return true
 }
 
-func (this *CalcExpBrick) AfterInitCorrectArg(dict map[string]scriptDriver.IScriptMinor, index int, funcArg *scriptDriver.FuncNodeArg) error {
+func (this *CalcExpBrick) AfterInitCorrectArg(dict map[string]scriptDriver.IScriptBrick, index int, funcArg *scriptDriver.BrickArg) error {
 	checkArgExpFuncDict := make(map[string]scriptDriver.CheckExpressionArgFunc)
 	for key, val := range dict {
 		checkArgExpFuncDict[key] = val.GetIsExpressionArg
 	}
 
-	funcDot := new(CalcFuncDot)
-	err := funcDot.Init(dict, funcArg.Content)
+	calcDot := new(CalcBrickNode)
+	err := calcDot.Init(dict, funcArg.Content)
 	if err != nil {
 		return err
 	}
-	this.funcDot = funcDot
+	this.calcNode = calcDot
 
 	//funcArg.Content = ""
 	//funcArg.MType = funcField.TYPE_FUNC

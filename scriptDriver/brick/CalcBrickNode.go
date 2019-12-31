@@ -7,15 +7,15 @@ import (
 	"strings"
 )
 
-type CalcFuncDot struct {
+type CalcBrickNode struct {
 	expression string
-	funMinors  []*scriptDriver.FuncNodeMinor
+	bricks     []*scriptDriver.Brick
 }
 
-func (this *CalcFuncDot) Init(dict map[string]scriptDriver.IScriptMinor, exp string) error {
+func (this *CalcBrickNode) Init(dict map[string]scriptDriver.IScriptBrick, exp string) error {
 	exp = strings.TrimSpace(exp)
 	this.expression = exp
-	this.funMinors = nil
+	this.bricks = nil
 
 	msegs, err := scriptDriver.GetFuncSentences(exp)
 	if err != nil {
@@ -29,23 +29,23 @@ func (this *CalcFuncDot) Init(dict map[string]scriptDriver.IScriptMinor, exp str
 
 	for idx := range msegs {
 		funseg := msegs[idx]
-		fdefine, err := scriptDriver.ParseFuncDefine(funseg, checkArgExpFuncDict)
+		brick, err := scriptDriver.ParseBrick(funseg, checkArgExpFuncDict)
 		if err != nil {
 			return err
 		}
 
-		err = scriptDriver.InitFuncDefine(dict, fdefine)
+		err = scriptDriver.InitFuncDefine(dict, brick)
 		if err != nil {
 			return err
 		}
 
-		this.funMinors = append(this.funMinors, fdefine)
+		this.bricks = append(this.bricks, brick)
 		exp = strings.ReplaceAll(exp, funseg, formatSegIndex(idx))
 	}
 	this.expression = exp
 
-	for idx := range this.funMinors {
-		err := scriptDriver.CheckMinorArgCountValid(this.funMinors[idx])
+	for idx := range this.bricks {
+		err := scriptDriver.CheckMinorArgCountValid(this.bricks[idx])
 		if err != nil {
 			return err
 		}
@@ -53,14 +53,14 @@ func (this *CalcFuncDot) Init(dict map[string]scriptDriver.IScriptMinor, exp str
 	return nil
 }
 
-func (this *CalcFuncDot) Calc(ctx interface{}) (interface{}, error) {
-	if len(this.funMinors) == 0 {
+func (this *CalcBrickNode) Calc(ctx interface{}) (interface{}, error) {
+	if len(this.bricks) == 0 {
 		return mathEngine.ParseAndExec(this.expression)
 	}
 
 	exp := this.expression
-	for idx := range this.funMinors {
-		v, err := this.funMinors[idx].Excute(ctx)
+	for idx := range this.bricks {
+		v, err := this.bricks[idx].Build(ctx)
 		if err != nil {
 			return nil, err
 		}

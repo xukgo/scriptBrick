@@ -56,53 +56,6 @@ func getFuncSentence(exp string, start int) (string, error) {
 	return bf.String(), nil
 }
 
-func innerCheckIsExpressionArg(index int) bool {
-	return false
-}
-func ParseFuncDefine(exp string, dict map[string]CheckExpressionArgFunc) (*FuncNodeMinor, error) {
-	exp = strings.TrimSpace(exp)
-	if !checkBracketsMatch(exp) {
-		return nil, fmt.Errorf("脚本括号数量不正确")
-	}
-
-	funcName, funArgs, err := SplitFuncExpression(exp)
-	if err != nil {
-		return nil, err
-	}
-
-	model := new(FuncNodeMinor)
-	model.FuncName = funcName
-
-	isExpFunc, find := dict[funcName]
-	if !find {
-		isExpFunc = innerCheckIsExpressionArg
-	}
-
-	var fargs []*FuncNodeArg
-	for idx := range funArgs {
-		if isExpFunc(idx) {
-			fargs = append(fargs, NewFuncNodeArg(TYPE_STRING, funArgs[idx]))
-			continue
-		}
-
-		sarr, err := GetFuncSentences(funArgs[idx])
-		if err != nil {
-			return nil, err
-		}
-		if len(sarr) > 0 {
-			fd, err := ParseFuncDefine(funArgs[idx], dict)
-			if err != nil {
-				return nil, err
-			}
-			fargs = append(fargs, NewFuncNodeArg(TYPE_FUNC, fd))
-		} else {
-			fargs = append(fargs, NewFuncNodeArg(TYPE_STRING, funArgs[idx]))
-		}
-	}
-	model.FuncArgs = fargs
-	return model, nil
-}
-
 func checkBracketsMatch(exp string) bool {
 	leftCount := strings.Count(exp, "(")
 	rightCount := strings.Count(exp, ")")

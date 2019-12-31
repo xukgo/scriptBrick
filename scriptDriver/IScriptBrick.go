@@ -1,8 +1,8 @@
 package scriptDriver
 
-type IScriptMinor interface {
-	CloneBasic() IScriptMinor
-	AfterInitCorrectArg(dict map[string]IScriptMinor, index int, arg *FuncNodeArg) error
+type IScriptBrick interface {
+	CloneBasic() IScriptBrick
+	AfterInitCorrectArg(dict map[string]IScriptBrick, index int, arg *BrickArg) error
 	GetIsExpressionArg(int) bool
 	CheckArgCount(int) bool
 	Eval(interface{}, ...interface{}) (interface{}, error)

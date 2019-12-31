@@ -1,41 +1,41 @@
-package funcField
+package scriptDriver
 
 import (
 	"fmt"
 	"strings"
 )
 
-type FuncObjectMinor struct {
+type FuncNodeMinor struct {
 	FuncName      string
-	FuncArgs      []*FuncObjectArg
-	RealFuncMinor IScriptObjectMinor
+	FuncArgs      []*FuncNodeArg
+	RealFuncMinor IScriptMinor
 }
 
-func NewFuncObjectMinor(fname string, fargs []*FuncObjectArg) *FuncObjectMinor {
-	model := new(FuncObjectMinor)
+func NewFuncNodeMinor(fname string, fargs []*FuncNodeArg) *FuncNodeMinor {
+	model := new(FuncNodeMinor)
 	model.FuncName = fname
 	model.FuncArgs = fargs
 	return model
 }
 
-type FuncObjectArg struct {
+type FuncNodeArg struct {
 	MType   int
 	Content string
-	Func    *FuncObjectMinor
+	Func    *FuncNodeMinor
 }
 
-func NewFuncObjectArg(mtype int, indata interface{}) *FuncObjectArg {
-	model := new(FuncObjectArg)
+func NewFuncNodeArg(mtype int, indata interface{}) *FuncNodeArg {
+	model := new(FuncNodeArg)
 	model.MType = mtype
 	if mtype == TYPE_FUNC {
-		model.Func = indata.(*FuncObjectMinor)
+		model.Func = indata.(*FuncNodeMinor)
 	} else {
 		model.Content = indata.(string)
 	}
 	return model
 }
 
-func (this *FuncObjectMinor) Excute(ctx interface{}) (interface{}, error) {
+func (this *FuncNodeMinor) Excute(ctx interface{}) (interface{}, error) {
 	var arr []interface{}
 	for idx := range this.FuncArgs {
 		if this.FuncArgs[idx].MType == TYPE_FUNC {
@@ -52,27 +52,27 @@ func (this *FuncObjectMinor) Excute(ctx interface{}) (interface{}, error) {
 	return this.RealFuncMinor.Eval(ctx, arr...)
 }
 
-func (this *FuncObjectMinor) InitFunc(factory map[string]IScriptObjectMinor) error {
-	lcFactory := make(map[string]IScriptObjectMinor)
-	for k, v := range factory {
+func (this *FuncNodeMinor) InitFunc(dict map[string]IScriptMinor) error {
+	lcFactory := make(map[string]IScriptMinor)
+	for k, v := range dict {
 		lcFactory[strings.ToLower(k)] = v
 	}
 
 	return this.initFuncArg(lcFactory)
 }
-func (this *FuncObjectMinor) initFuncArg(factory map[string]IScriptObjectMinor) error {
+func (this *FuncNodeMinor) initFuncArg(dict map[string]IScriptMinor) error {
 	if len(this.FuncName) == 0 {
 		return fmt.Errorf("func name is empty")
 	}
-	f, find := factory[strings.ToLower(this.FuncName)]
+	f, find := dict[strings.ToLower(this.FuncName)]
 	if !find {
 		return fmt.Errorf("func name is not found instance:%s", this.FuncName)
 	}
-	this.RealFuncMinor = f
+	this.RealFuncMinor = f.Clone()
 
 	for idx := range this.FuncArgs {
 		if this.FuncArgs[idx].MType == TYPE_FUNC {
-			err := this.FuncArgs[idx].Func.initFuncArg(factory)
+			err := this.FuncArgs[idx].Func.initFuncArg(dict)
 			if err != nil {
 				return err
 			}

@@ -6,7 +6,7 @@ build function script to a final operation or value
 
     1、计算1000+sum(100.23,100.11,sum(1,2))+(100*2)的结果
     2、输出stringJoin(abc,sum(100.789,30.56),def100)的结果
-    3、执行deleteTask(getTaskId(taskName),alltimeline)删除项目运行时的某个任何
+    3、执行deleteTask(getTaskId(taskName),alltimeline)删除项目运行时的某个任何item
 
 理论上go能做到的都能脚本化
 

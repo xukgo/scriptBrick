@@ -1,4 +1,4 @@
-package funcField
+package scriptDriver
 
 import (
 	"bytes"
@@ -56,34 +56,47 @@ func getFuncSentence(exp string, start int) (string, error) {
 	return bf.String(), nil
 }
 
-func ParseObjectFuncDefine(exp string) (*FuncObjectMinor, error) {
+func innerCheckIsExpressionArg(index int) bool {
+	return false
+}
+func ParseFuncDefine(exp string, dict map[string]CheckExpressionArgFunc) (*FuncNodeMinor, error) {
 	exp = strings.TrimSpace(exp)
 	if !checkBracketsMatch(exp) {
 		return nil, fmt.Errorf("脚本括号数量不正确")
 	}
 
-	funcName, funArgs, err := splitFuncExpression(exp)
+	funcName, funArgs, err := SplitFuncExpression(exp)
 	if err != nil {
 		return nil, err
 	}
 
-	model := new(FuncObjectMinor)
+	model := new(FuncNodeMinor)
 	model.FuncName = funcName
 
-	var fargs []*FuncObjectArg
+	isExpFunc, find := dict[funcName]
+	if !find {
+		isExpFunc = innerCheckIsExpressionArg
+	}
+
+	var fargs []*FuncNodeArg
 	for idx := range funArgs {
+		if isExpFunc(idx) {
+			fargs = append(fargs, NewFuncNodeArg(TYPE_STRING, funArgs[idx]))
+			continue
+		}
+
 		sarr, err := GetFuncSentences(funArgs[idx])
 		if err != nil {
 			return nil, err
 		}
 		if len(sarr) > 0 {
-			fd, err := ParseObjectFuncDefine(funArgs[idx])
+			fd, err := ParseFuncDefine(funArgs[idx], dict)
 			if err != nil {
 				return nil, err
 			}
-			fargs = append(fargs, NewFuncObjectArg(TYPE_FUNC, fd))
+			fargs = append(fargs, NewFuncNodeArg(TYPE_FUNC, fd))
 		} else {
-			fargs = append(fargs, NewFuncObjectArg(TYPE_STRING, funArgs[idx]))
+			fargs = append(fargs, NewFuncNodeArg(TYPE_STRING, funArgs[idx]))
 		}
 	}
 	model.FuncArgs = fargs
@@ -103,7 +116,7 @@ func checkBracketsMatch(exp string) bool {
 	return true
 }
 
-func splitFuncExpression(exp string) (string, []string, error) {
+func SplitFuncExpression(exp string) (string, []string, error) {
 	if !checkBracketsMatch(exp) {
 		return "", nil, fmt.Errorf("脚本括号数量不正确")
 	}

@@ -1,13 +1,14 @@
-package funcField
+package unitTest
 
 import (
 	"fmt"
+	"github.com/xukgo/scriptBrick/scriptDriver"
 	"testing"
 )
 
 func TestRegexp1(t *testing.T) {
 	s1 := "2-(1*3/899+getmap(abc,getinn(666,-1,3a),-1,3)/563+9*+getpro(12abc,-1,3))"
-	arr, err := GetFuncSentences(s1)
+	arr, err := scriptDriver.GetFuncSentences(s1)
 	if err != nil {
 		t.Fail()
 	}
@@ -16,7 +17,7 @@ func TestRegexp1(t *testing.T) {
 
 func TestSplitExpression1(t *testing.T) {
 	exp := "stringJoin  ( abc  ,  sum(100.789,rand(0.001,999.99)) ,  def100)"
-	fname, fargs, err := splitFuncExpression(exp)
+	fname, fargs, err := scriptDriver.SplitFuncExpression(exp)
 	if err != nil {
 		t.Fail()
 	}

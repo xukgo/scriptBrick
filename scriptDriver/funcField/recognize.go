@@ -90,39 +90,6 @@ func ParseObjectFuncDefine(exp string) (*FuncObjectMinor, error) {
 	return model, nil
 }
 
-func ParseStringFuncDefine(exp string) (*FuncStringMinor, error) {
-	exp = strings.TrimSpace(exp)
-	if !checkBracketsMatch(exp) {
-		return nil, fmt.Errorf("脚本括号数量不正确")
-	}
-
-	funcName, funArgs, err := splitFuncExpression(exp)
-	if err != nil {
-		return nil, err
-	}
-
-	model := new(FuncStringMinor)
-	model.FuncName = funcName
-
-	var fargs []*FuncStringArg
-	for idx := range funArgs {
-		sarr, err := GetFuncSentences(funArgs[idx])
-		if err != nil {
-			return nil, err
-		}
-		if len(sarr) > 0 {
-			fd, err := ParseStringFuncDefine(funArgs[idx])
-			if err != nil {
-				return nil, err
-			}
-			fargs = append(fargs, NewFuncStringArg(TYPE_FUNC, fd))
-		} else {
-			fargs = append(fargs, NewFuncStringArg(TYPE_STRING, funArgs[idx]))
-		}
-	}
-	model.FuncArgs = fargs
-	return model, nil
-}
 func checkBracketsMatch(exp string) bool {
 	leftCount := strings.Count(exp, "(")
 	rightCount := strings.Count(exp, ")")

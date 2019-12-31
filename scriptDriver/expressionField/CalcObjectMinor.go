@@ -2,15 +2,13 @@ package expressionField
 
 import (
 	"fmt"
-	"github.com/xukgo/scriptBrick/mathEngine"
 	"github.com/xukgo/scriptBrick/scriptDriver/funcField"
 	"strings"
 )
 
 type CalcObjectMinor struct {
 	dict      map[string]funcField.IScriptObjectMinor
-	exp       string
-	funMinors []*funcField.FuncObjectMinor
+	funMinor *funcField.FuncObjectMinor
 }
 
 func NewCalcObjectMinor(dict map[string]funcField.IScriptObjectMinor) *CalcObjectMinor {
@@ -24,36 +22,22 @@ func NewCalcObjectMinor(dict map[string]funcField.IScriptObjectMinor) *CalcObjec
 
 func (this *CalcObjectMinor) Init(exp string) error {
 	exp = strings.TrimSpace(exp)
-	this.exp = exp
-	this.funMinors = nil
 
-	msegs, err := funcField.GetFuncSentences(exp)
+	rootDefine, err := funcField.ParseObjectFuncDefine(exp)
+	if err != nil {
+		return err
+	}
+	err = rootDefine.InitFunc(this.dict)
 	if err != nil {
 		return err
 	}
 
-	for idx := range msegs {
-		funseg := msegs[idx]
-		rootDefine, err := funcField.ParseObjectFuncDefine(funseg)
-		if err != nil {
-			return err
-		}
-		err = rootDefine.InitFunc(this.dict)
-		if err != nil {
-			return err
-		}
-
-		this.funMinors = append(this.funMinors, rootDefine)
-		exp = strings.ReplaceAll(exp, funseg, formatSegIndex(idx))
+	this.funMinor = rootDefine
+	err = checkObjectMinorArgCountValid(this.funMinor)
+	if err != nil{
+		return err
 	}
-	this.exp = exp
 
-	for idx := range this.funMinors{
-		err := checkObjectMinorArgCountValid(this.funMinors[idx])
-		if err != nil{
-			return err
-		}
-	}
 	return nil
 }
 
@@ -77,21 +61,15 @@ func checkObjectMinorArgCountValid(item *funcField.FuncObjectMinor)error {
 }
 
 func (this *CalcObjectMinor) Calc(ctx interface{}) (interface{}, error) {
-	if len(this.funMinors) == 0 {
-		return mathEngine.ParseAndExec(this.exp)
+	var err error
+	var v interface{}
+	v, err = this.funMinor.Excute(ctx)
+	if err != nil {
+		return nil, err
 	}
-
-	exp := this.exp
-	for idx := range this.funMinors {
-		v, err := this.funMinors[idx].Excute(ctx)
-		if err != nil {
-			return nil, err
-		}
-		exp = strings.ReplaceAll(exp, formatSegIndex(idx), fmt.Sprintf("%v", v))
-	}
-	return mathEngine.ParseAndExec(exp)
+	return v,nil
 }
 
-func formatSegIndex(index int) string {
-	return fmt.Sprintf("func[%02d]", index)
-}
+//func formatSegIndex(index int) string {
+//	return fmt.Sprintf("func[%02d]", index)
+//}

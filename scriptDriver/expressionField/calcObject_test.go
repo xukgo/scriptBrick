@@ -2,6 +2,7 @@ package expressionField
 
 import (
 	"fmt"
+	"github.com/xukgo/scriptBrick/mathEngine"
 	"github.com/xukgo/scriptBrick/scriptDriver/funcField"
 	"strconv"
 	"testing"
@@ -10,7 +11,8 @@ import (
 func BenchmarkCalcObject1(b *testing.B) {
 	funcMap := make(map[string]funcField.IScriptObjectMinor)
 	funcMap["sum"] = new(SumObjectMinor)
-	exp := "1000+sum(100.23,100.11,sum(1,2))+(100*2)"
+	funcMap["calc"] = new(CalcFuncMinor)
+	exp := "sum(calc(1000+222.12+(100*2)),sum(1,2))"
 	calcMino := NewCalcObjectMinor(funcMap)
 	err := calcMino.Init(exp)
 	if err != nil {
@@ -22,7 +24,7 @@ func BenchmarkCalcObject1(b *testing.B) {
 		if err != nil {
 			b.Fail()
 		}
-		if val != 1403.34 {
+		if val != 1425.12 {
 			b.Fail()
 		}
 
@@ -45,13 +47,19 @@ func (this *SumObjectMinor) Eval(ctx interface{}, args ...interface{}) (interfac
 	return sum, nil
 }
 
-func (this *SumObjectMinor) CheckArgValid(ctx interface{}, args ...interface{}) error {
-	if len(args) == 0{
-		return fmt.Errorf("args count cannot be 0")
-	}
-	return nil
-}
-
 func (this *SumObjectMinor) CheckArgCount(count int) bool {
 	return count > 0
+}
+
+type CalcFuncMinor struct {
+}
+
+func (this *CalcFuncMinor) Eval(ctx interface{}, args ...interface{}) (interface{}, error) {
+	str := fmt.Sprintf("%v", args[0])
+	res,err := mathEngine.ParseAndExec(str)
+	return res,err
+}
+
+func (this *CalcFuncMinor) CheckArgCount(count int) bool {
+	return count == 1
 }

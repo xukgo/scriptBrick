@@ -22,14 +22,9 @@ func (this *CalcBrickNode) Init(dict map[string]scriptDriver.IScriptBrick, exp s
 		return err
 	}
 
-	checkArgExpFuncDict := make(map[string]scriptDriver.CheckExpressionArgFunc)
-	for key, val := range dict {
-		checkArgExpFuncDict[key] = val.GetIsExpressionArg
-	}
-
 	for idx := range msegs {
 		funseg := msegs[idx]
-		brick, err := scriptDriver.ParseBrick(funseg, checkArgExpFuncDict)
+		brick, err := scriptDriver.ParseBrick(funseg)
 		if err != nil {
 			return err
 		}

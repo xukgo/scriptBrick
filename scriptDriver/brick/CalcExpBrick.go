@@ -17,16 +17,7 @@ func (this *CalcExpBrick) CheckArgCount(count int) bool {
 	return count == 1
 }
 
-func (this *CalcExpBrick) GetIsExpressionArg(index int) bool {
-	return true
-}
-
 func (this *CalcExpBrick) AfterInitCorrectArg(dict map[string]scriptDriver.IScriptBrick, index int, funcArg *scriptDriver.BrickArg) error {
-	checkArgExpFuncDict := make(map[string]scriptDriver.CheckExpressionArgFunc)
-	for key, val := range dict {
-		checkArgExpFuncDict[key] = val.GetIsExpressionArg
-	}
-
 	calcDot := new(CalcBrickNode)
 	err := calcDot.Init(dict, funcArg.Content)
 	if err != nil {

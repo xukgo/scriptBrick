@@ -14,7 +14,7 @@ func BenchmarkCalcObject1(b *testing.B) {
 	funcMap["sum"] = new(SumObjectMinor)
 	funcMap["calc"] = new(brick.CalcExpBrick)
 	exp := "sum(sum(3,2),sum(1,2.12))"
-	brick,err := scriptDriver.CreateBrick(funcMap,exp)
+	brick, err := scriptDriver.CreateBrick(funcMap, exp)
 	if err != nil {
 		b.Fail()
 	}
@@ -36,8 +36,8 @@ func BenchmarkCalcObject2(b *testing.B) {
 	funcMap := make(map[string]scriptDriver.IScriptBrick)
 	funcMap["sum"] = new(SumObjectMinor)
 	funcMap["calc"] = new(brick.CalcExpBrick)
-	exp := "sum(sum(3,2),calc(1000+sum(1,2)+222.12-(100*2)),sum(1,2))"
-	brick,err := scriptDriver.CreateBrick(funcMap,exp)
+	exp := "sum(sum(3,2),calc('1000+sum(1,2)+222.12-(100*2)'),sum(1,2))"
+	brick, err := scriptDriver.CreateBrick(funcMap, exp)
 	if err != nil {
 		b.Fail()
 	}
@@ -58,8 +58,8 @@ func BenchmarkCalcObject3(b *testing.B) {
 	funcMap := make(map[string]scriptDriver.IScriptBrick)
 	funcMap["sum"] = new(SumObjectMinor)
 	funcMap["calc"] = new(brick.CalcExpBrick)
-	exp := "sum(calc(1000+sum(1,2)+calc(11+22*1)),sum(1,2))"
-	brick,err := scriptDriver.CreateBrick(funcMap,exp)
+	exp := "sum(calc('1000+sum(1,2)+calc(11+22*1)'),sum(1,2))"
+	brick, err := scriptDriver.CreateBrick(funcMap, exp)
 	if err != nil {
 		b.Fail()
 	}
@@ -70,6 +70,28 @@ func BenchmarkCalcObject3(b *testing.B) {
 			b.Fail()
 		}
 		if val != 1039.00 {
+			b.Fail()
+		}
+
+	}
+}
+
+func BenchmarkCalcObject4(b *testing.B) {
+	funcMap := make(map[string]scriptDriver.IScriptBrick)
+	funcMap["sum"] = new(SumObjectMinor)
+	funcMap["calc"] = new(brick.CalcExpBrick)
+	exp := "calc('1.1+2.2').sum(sum(1,2)).sum(10,20).sum(calc('100+200'))"
+	brick, err := scriptDriver.CreateBrick(funcMap, exp)
+	if err != nil {
+		b.Fail()
+	}
+
+	for i := 0; i < b.N; i++ {
+		val, err := brick.Build(nil)
+		if err != nil {
+			b.Fail()
+		}
+		if val != 336.3 {
 			b.Fail()
 		}
 
@@ -98,10 +120,6 @@ func (this *SumObjectMinor) Eval(ctx interface{}, args ...interface{}) (interfac
 
 func (this *SumObjectMinor) CheckArgCount(count int) bool {
 	return count > 0
-}
-
-func (this *SumObjectMinor) GetIsExpressionArg(int) bool {
-	return false
 }
 
 func (this *SumObjectMinor) AfterInitCorrectArg(dict map[string]scriptDriver.IScriptBrick, index int, arg *scriptDriver.BrickArg) error {

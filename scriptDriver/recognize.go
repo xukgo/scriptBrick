@@ -69,7 +69,8 @@ func checkBracketsMatch(exp string) bool {
 	return true
 }
 
-func SplitFuncExpression(exp string) (string, []string, error) {
+//把一个方法脚本分解成函数名和参数
+func UnlashScriptExpression(exp string) (string, []string, error) {
 	if !checkBracketsMatch(exp) {
 		return "", nil, fmt.Errorf("脚本括号数量不正确")
 	}
@@ -110,4 +111,13 @@ func SplitFuncExpression(exp string) (string, []string, error) {
 	args = append(args, strings.TrimSpace(bf.String()))
 	bf.Reset()
 	return funcName, args, nil
+}
+
+//把函数连接分解成一个个函数
+func SplitScriptExpression(exp string) ([]string, error) {
+	arr, err := GetFuncSentences(exp)
+	if err != nil {
+		return nil, err
+	}
+	return arr, nil
 }

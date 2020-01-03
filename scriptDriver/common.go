@@ -69,3 +69,23 @@ func CheckMinorArgCountValid(item *Brick) error {
 
 	return nil
 }
+
+func checkIsQuotMarkSentence(str string) bool {
+	if len(str) < 2 {
+		return false
+	}
+	head := str[0]
+	tail := str[len(str)-1]
+	if head != tail {
+		return false
+	}
+
+	if head == '"' {
+		return true
+	}
+	if head == '\'' {
+		return true
+	}
+
+	return false
+}

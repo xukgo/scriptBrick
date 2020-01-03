@@ -15,9 +15,9 @@ func TestRegexp1(t *testing.T) {
 	fmt.Println(arr)
 }
 
-func TestSplitExpression1(t *testing.T) {
+func TestUnlashExpression1(t *testing.T) {
 	exp := "stringJoin  ( abc  ,  sum(100.789,rand(0.001,999.99)) ,  def100)"
-	fname, fargs, err := scriptDriver.SplitFuncExpression(exp)
+	fname, fargs, err := scriptDriver.UnlashScriptExpression(exp)
 	if err != nil {
 		t.Fail()
 	}
@@ -34,6 +34,18 @@ func TestSplitExpression1(t *testing.T) {
 		t.Fail()
 	}
 	if fargs[2] != "def100" {
+		t.Fail()
+	}
+}
+
+func TestSplitExpression1(t *testing.T) {
+	exp := "stringJoin  ( abc  ,  sum(100.789,rand(0.001,999.99)) ,  def100).split(aaa,22).len()"
+	funSens, err := scriptDriver.GetFuncSentences(exp)
+	if err != nil {
+		t.Fail()
+	}
+
+	if len(funSens) != 3{
 		t.Fail()
 	}
 }

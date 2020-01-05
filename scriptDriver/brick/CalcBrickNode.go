@@ -17,7 +17,7 @@ func (this *CalcBrickNode) Init(dict map[string]scriptDriver.IScriptBrick, exp s
 	this.expression = exp
 	this.bricks = nil
 
-	msegs, err := scriptDriver.GetFuncSentences(exp)
+	exp, msegs, err := scriptDriver.GetFuncExpression(exp)
 	if err != nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func (this *CalcBrickNode) Init(dict map[string]scriptDriver.IScriptBrick, exp s
 		}
 
 		this.bricks = append(this.bricks, brick)
-		exp = strings.ReplaceAll(exp, funseg, formatSegIndex(idx))
+		exp = strings.Replace(exp, "@@", formatSegIndex(idx), 1)
 	}
 	this.expression = exp
 

@@ -7,6 +7,56 @@ import (
 	"strings"
 )
 
+const FUNC_MARK = "@@"
+const CONTINUE_FUNC_MARK = "@@.@@"
+
+func GetFuncExpression(script string) (string, []string, error) {
+	//reg := regexp.MustCompile(`([a-zA-Z][a-zA-Z0-9_]{1,64})(\s*)(\([^\)]*\))`)
+
+	var arr []string
+	script = strings.TrimSpace(script)
+	reg := regexp.MustCompile(`([a-zA-Z][a-zA-Z0-9_]{1,64})(\s*)(\()`)
+	for {
+		matchStr := reg.FindString(script)
+		if len(matchStr) == 0 {
+			break
+		}
+
+		str, err := getFuncSentence(script, strings.Index(script, matchStr))
+		if err != nil {
+			return "", nil, err
+		}
+		script = strings.Replace(script, str, FUNC_MARK, 1)
+		script = trimFuncMarkSpace(script)
+		if strings.Index(script, CONTINUE_FUNC_MARK) >= 0 {
+			arr[len(arr)-1] = arr[len(arr)-1] + "." + str
+			script = strings.Replace(script, CONTINUE_FUNC_MARK, FUNC_MARK, 1)
+		} else {
+			arr = append(arr, str)
+		}
+	}
+	return script, arr, nil
+}
+
+func trimFuncMarkSpace(script string) string {
+	leftSpaceMark := " " + FUNC_MARK
+	rightSpaceMark := FUNC_MARK + " "
+	for {
+		length := len(script)
+		script = strings.ReplaceAll(script, leftSpaceMark, FUNC_MARK)
+		if length == len(script) {
+			break
+		}
+	}
+	for {
+		length := len(script)
+		script = strings.ReplaceAll(script, rightSpaceMark, FUNC_MARK)
+		if length == len(script) {
+			break
+		}
+	}
+	return script
+}
 func GetFuncSentences(script string) ([]string, error) {
 	//reg := regexp.MustCompile(`([a-zA-Z][a-zA-Z0-9_]{1,64})(\s*)(\([^\)]*\))`)
 

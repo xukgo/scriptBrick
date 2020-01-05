@@ -98,6 +98,28 @@ func BenchmarkCalcObject4(b *testing.B) {
 	}
 }
 
+func BenchmarkCalcObject5(b *testing.B) {
+	funcMap := make(map[string]scriptDriver.IScriptBrick)
+	funcMap["sum"] = new(SumObjectMinor)
+	funcMap["calc"] = new(brick.CalcExpBrick)
+	exp := "calc('1.1+sum(sum(1,2)).sum(10,20)+2.2').sum(calc('100+200'))"
+	brick, err := scriptDriver.CreateBrick(funcMap, exp)
+	if err != nil {
+		b.Fail()
+	}
+
+	for i := 0; i < b.N; i++ {
+		val, err := brick.Build(nil)
+		if err != nil {
+			b.Fail()
+		}
+		if val != 336.3 {
+			b.Fail()
+		}
+
+	}
+}
+
 type SumObjectMinor struct {
 }
 
@@ -122,6 +144,6 @@ func (this *SumObjectMinor) CheckArgCount(count int) bool {
 	return count > 0
 }
 
-func (this *SumObjectMinor) AfterInitCorrectArg(dict map[string]scriptDriver.IScriptBrick, index int, arg *scriptDriver.BrickArg) error {
-	return nil
-}
+//func (this *SumObjectMinor) AfterInitCorrectArg(dict map[string]scriptDriver.IScriptBrick, index int, arg *scriptDriver.BrickArg) error {
+//	return nil
+//}

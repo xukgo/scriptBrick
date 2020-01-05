@@ -6,7 +6,16 @@ import (
 	"testing"
 )
 
-func TestRegexp1(t *testing.T) {
+func TestGetFuncExpression(t *testing.T) {
+	s1 := "2-(1*3/899+getmap(abc, -1, sum(1, 2))  . getinn(666,-1,3a)/563+9*+getpro(12abc,-1,3).  sum(1,2))"
+	exp, arr, err := scriptDriver.GetFuncExpression(s1)
+	if err != nil {
+		t.Fail()
+	}
+	fmt.Println(exp)
+	fmt.Println(arr)
+}
+func TestGetFuncSentences(t *testing.T) {
 	s1 := "2-(1*3/899+getmap(abc,getinn(666,-1,3a),-1,3)/563+9*+getpro(12abc,-1,3))"
 	arr, err := scriptDriver.GetFuncSentences(s1)
 	if err != nil {
@@ -45,7 +54,7 @@ func TestSplitExpression1(t *testing.T) {
 		t.Fail()
 	}
 
-	if len(funSens) != 3{
+	if len(funSens) != 3 {
 		t.Fail()
 	}
 }

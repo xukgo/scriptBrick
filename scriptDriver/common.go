@@ -30,7 +30,11 @@ func correctArg(dict map[string]IScriptBrick, item *Brick) error {
 	}
 
 	for idx := range item.FuncArgs {
-		err := item.RealFuncMinor.AfterInitCorrectArg(dict, idx, item.FuncArgs[idx])
+		mountCallback, ok := item.RealFuncMinor.(IBrickMountCallback)
+		if !ok {
+			continue
+		}
+		err := mountCallback.AfterInitCorrectArg(dict, idx, item.FuncArgs[idx])
 		if err != nil {
 			return err
 		}

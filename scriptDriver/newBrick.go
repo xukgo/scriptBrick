@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func CreateBrick(dict map[string]IScriptBrick, exp string) (*Brick, error) {
+func CreateBrick(dict map[string]IScriptBrick, exp string, preParam *PreConstParam) (*Brick, error) {
 	if dict == nil {
 		dict = make(map[string]IScriptBrick)
 	}
@@ -21,7 +21,39 @@ func CreateBrick(dict map[string]IScriptBrick, exp string) (*Brick, error) {
 		return nil, err
 	}
 
+	if preParam == nil {
+		return brick, nil
+	}
+
+	err = preBuild(brick, preParam)
+	if err != nil {
+		return nil, err
+	}
 	return brick, nil
+}
+
+func preBuild(brick *Brick, preParam *PreConstParam) error {
+	if brick == nil {
+		return nil
+	}
+	if brick.FuncName == preParam.PreFuncName {
+		val, err := brick.Build(preParam.Context)
+		if err != nil {
+			return err
+		}
+		brick.RealFuncMinor = new(PreBuildBrick)
+		brick.FuncArgs = []*BrickArg{NewBrickArg(TYPE_OBJECT, val)}
+		return nil
+	}
+
+	for idx := range brick.FuncArgs {
+		err := preBuild(brick.FuncArgs[idx].Func, preParam)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 //func innerCheckIsExpressionArg(index int) bool {

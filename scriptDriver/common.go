@@ -44,6 +44,9 @@ func correctArg(dict map[string]IScriptBrick, item *Brick) error {
 		if funcArg.MType == TYPE_STRING {
 			continue
 		}
+		if funcArg.MType == TYPE_OBJECT {
+			continue
+		}
 		if funcArg.Func == nil {
 			continue
 		}

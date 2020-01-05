@@ -21,8 +21,10 @@ func (this *Brick) Build(ctx interface{}) (interface{}, error) {
 				return nil, err
 			}
 			arr = append(arr, v)
-		} else {
+		} else if this.FuncArgs[idx].MType == TYPE_STRING {
 			arr = append(arr, this.FuncArgs[idx].Content)
+		} else {
+			arr = append(arr, this.FuncArgs[idx].Value)
 		}
 	}
 	return this.RealFuncMinor.Eval(ctx, arr...)

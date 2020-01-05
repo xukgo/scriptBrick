@@ -1,4 +1,4 @@
-package brick
+package brickBomb
 
 import "github.com/xukgo/scriptBrick/scriptDriver"
 

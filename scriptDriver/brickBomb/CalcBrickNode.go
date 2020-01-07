@@ -15,13 +15,13 @@ type CalcBrickNode struct {
 func (this *CalcBrickNode) Init(dict map[string]scriptDriver.IScriptBrick, exp string) error {
 	exp = strings.TrimSpace(exp)
 	this.expression = exp
-	this.bricks = nil
 
 	exp, msegs, err := scriptDriver.GetFuncExpression(exp)
 	if err != nil {
 		return err
 	}
 
+	this.bricks = make([]*scriptDriver.Brick, 0, len(msegs))
 	for idx := range msegs {
 		funseg := msegs[idx]
 		brick, err := scriptDriver.ParseBrick(funseg)

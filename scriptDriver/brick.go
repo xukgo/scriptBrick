@@ -12,7 +12,7 @@ type Brick struct {
 }
 
 func (this *Brick) Build(ctx interface{}) (interface{}, error) {
-	var arr []interface{}
+	var arr = make([]interface{}, 0, len(this.FuncArgs))
 	for idx := range this.FuncArgs {
 		if this.FuncArgs[idx].MType == TYPE_FUNC {
 			f := this.FuncArgs[idx].Func

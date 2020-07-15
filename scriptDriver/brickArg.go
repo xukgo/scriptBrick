@@ -19,3 +19,10 @@ func NewBrickArg(mtype int, indata interface{}) *BrickArg {
 	}
 	return model
 }
+
+func (this *BrickArg) CheckIsConstValue() bool {
+	if this.MType == TYPE_FUNC {
+		return false
+	}
+	return true
+}

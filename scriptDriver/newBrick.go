@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func CreateBrick(dict map[string]IScriptBrick, exp string, preParam *PreConstParam) (*Brick, error) {
+func CreateBrick(dict map[string]IScriptBrick, exp string) (*Brick, error) {
 	if dict == nil {
 		dict = make(map[string]IScriptBrick)
 	}
@@ -21,45 +21,69 @@ func CreateBrick(dict map[string]IScriptBrick, exp string, preParam *PreConstPar
 		return nil, err
 	}
 
-	if preParam == nil {
+	//if preParam == nil {
+	//	return brick, nil
+	//}
+	//
+	//err = preBuild(brick, preParam)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//return brick, nil
+	return constBuild(brick)
+}
+
+func constBuild(brick *Brick) (*Brick, error) {
+	if brick == nil {
+		return nil, nil
+	}
+
+	if brick.RealFuncMinor == nil {
 		return brick, nil
 	}
 
-	err = preBuild(brick, preParam)
-	if err != nil {
-		return nil, err
+	if brick.RealFuncMinor.SurplusContext() {
+		for idx := range brick.FuncArgs {
+			if brick.FuncArgs[idx].Func == nil {
+				continue
+			}
+			nb, err := constBuild(brick.FuncArgs[idx].Func)
+			if err != nil {
+				return brick, err
+			}
+			if _, ok := nb.RealFuncMinor.(*ConstBrick); ok {
+				val, err := nb.Build(nil)
+				if err != nil {
+					return brick, err
+				}
+				brick.FuncArgs[idx] = NewBrickArg(TYPE_OBJECT, val)
+			} else {
+				brick.FuncArgs[idx].Func = nb
+			}
+		}
+
+		allConstArg := true
+		for idx := range brick.FuncArgs {
+			if !brick.FuncArgs[idx].CheckIsConstValue() {
+				allConstArg = false
+			}
+		}
+
+		if allConstArg {
+			val, err := brick.Build(nil)
+			if err != nil {
+				return brick, err
+			}
+
+			resBrick := new(Brick)
+			resBrick.FuncName = "const"
+			resBrick.RealFuncMinor = NewConstBrick(val)
+			return resBrick, nil
+		}
 	}
+
 	return brick, nil
 }
-
-func preBuild(brick *Brick, preParam *PreConstParam) error {
-	if brick == nil {
-		return nil
-	}
-	if brick.FuncName == preParam.PreFuncName {
-		val, err := brick.Build(preParam.Context)
-		if err != nil {
-			return err
-		}
-		brick.RealFuncMinor = new(PreBuildBrick)
-		brick.FuncArgs = []*BrickArg{NewBrickArg(TYPE_OBJECT, val)}
-		return nil
-	}
-
-	for idx := range brick.FuncArgs {
-		err := preBuild(brick.FuncArgs[idx].Func, preParam)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-//func innerCheckIsExpressionArg(index int) bool {
-//	return false
-//}
-
 func ParseBrick(exp string) (*Brick, error) {
 	exp = strings.TrimSpace(exp)
 	if !checkBracketsMatch(exp) {
@@ -117,3 +141,31 @@ func ParseBrick(exp string) (*Brick, error) {
 
 	return lastBrick, nil
 }
+
+func preBuild(brick *Brick, preParam *PreConstParam) error {
+	if brick == nil {
+		return nil
+	}
+	if brick.FuncName == preParam.PreFuncName {
+		val, err := brick.Build(preParam.Context)
+		if err != nil {
+			return err
+		}
+		brick.RealFuncMinor = new(PreBuildBrick)
+		brick.FuncArgs = []*BrickArg{NewBrickArg(TYPE_OBJECT, val)}
+		return nil
+	}
+
+	for idx := range brick.FuncArgs {
+		err := preBuild(brick.FuncArgs[idx].Func, preParam)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+//func innerCheckIsExpressionArg(index int) bool {
+//	return false
+//}

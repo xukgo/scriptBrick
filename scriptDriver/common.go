@@ -96,3 +96,13 @@ func checkIsQuotMarkSentence(str string) bool {
 
 	return false
 }
+
+//func getKind(v interface{}) reflect.Kind {
+//	elem := reflect.ValueOf(v)
+//	//fmt.Println(elem)
+//	elemType := elem.Type()
+//	//fmt.Println(elemType)
+//	k := elemType.Kind()
+//	//fmt.Println(k)
+//	return k
+//}

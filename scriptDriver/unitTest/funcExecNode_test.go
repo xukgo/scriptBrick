@@ -15,7 +15,7 @@ func BenchmarkCalcObject1(b *testing.B) {
 	funcMap["sum"] = new(SumObjectMinor)
 	funcMap["calc"] = new(brickBomb.CalcExpBrick)
 	exp := "sum(sum(3,2),sum(1,2.12))"
-	brick, err := scriptDriver.CreateBrick(funcMap, exp, nil)
+	brick, err := scriptDriver.CreateBrick(funcMap, exp)
 	if err != nil {
 		b.Fail()
 		return
@@ -42,7 +42,7 @@ func BenchmarkCalcObject2(b *testing.B) {
 	funcMap["sum"] = new(SumObjectMinor)
 	funcMap["calc"] = new(brickBomb.CalcExpBrick)
 	exp := "sum(sum(3,2),calc('1000+sum(1,2)+222.12-(100*2)'),sum(1,2))"
-	brick, err := scriptDriver.CreateBrick(funcMap, exp, nil)
+	brick, err := scriptDriver.CreateBrick(funcMap, exp)
 	if err != nil {
 		b.Fail()
 		return
@@ -68,7 +68,7 @@ func BenchmarkCalcObject3(b *testing.B) {
 	funcMap["sum"] = new(SumObjectMinor)
 	funcMap["calc"] = new(brickBomb.CalcExpBrick)
 	exp := "sum(calc('1000+sum(1,2)+calc(11+22*1)'),sum(1,2))"
-	brick, err := scriptDriver.CreateBrick(funcMap, exp, nil)
+	brick, err := scriptDriver.CreateBrick(funcMap, exp)
 	if err != nil {
 		b.Fail()
 		return
@@ -94,7 +94,7 @@ func BenchmarkCalcObject4(b *testing.B) {
 	funcMap["sum"] = new(SumObjectMinor)
 	funcMap["calc"] = new(brickBomb.CalcExpBrick)
 	exp := "calc('1.1+2.2').sum(sum(1,2)).sum(10,20).sum(calc('100+200'))"
-	brick, err := scriptDriver.CreateBrick(funcMap, exp, nil)
+	brick, err := scriptDriver.CreateBrick(funcMap, exp)
 	if err != nil {
 		b.Fail()
 		return
@@ -120,7 +120,7 @@ func BenchmarkCalcObject5(b *testing.B) {
 	funcMap["sum"] = new(SumObjectMinor)
 	funcMap["calc"] = new(brickBomb.CalcExpBrick)
 	exp := "calc('1.1+sum(sum(1,2)).sum(10,20)+2.2').sum(calc('100+200'))"
-	brick, err := scriptDriver.CreateBrick(funcMap, exp, nil)
+	brick, err := scriptDriver.CreateBrick(funcMap, exp)
 	if err != nil {
 		b.Fail()
 		return
@@ -146,7 +146,7 @@ func BenchmarkCalcObject6(b *testing.B) {
 	funcMap["sum"] = new(SumObjectMinor)
 	funcMap["calc"] = new(brickBomb.CalcExpBrick)
 	exp := "preEval(calc('1.1+sum(sum(1,2).sum(10,20))+2.2').sum(calc('100+200')))"
-	brick, err := scriptDriver.CreateBrick(funcMap, exp, scriptDriver.NewPreConstParam(nil, "preEval"))
+	brick, err := scriptDriver.CreateBrick(funcMap, exp) //, scriptDriver.NewPreConstParam(nil, "preEval")
 	if err != nil {
 		b.Fail()
 		return
@@ -171,6 +171,10 @@ type SumObjectMinor struct {
 
 func (this *SumObjectMinor) CloneBasic() scriptDriver.IScriptBrick {
 	return this
+}
+
+func (this *SumObjectMinor) SurplusContext() bool {
+	return true
 }
 
 func (this *SumObjectMinor) Eval(ctx interface{}, args ...interface{}) (interface{}, error) {

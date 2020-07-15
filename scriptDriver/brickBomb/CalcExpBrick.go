@@ -9,6 +9,10 @@ type CalcExpBrick struct {
 func (this *CalcExpBrick) CloneBasic() scriptDriver.IScriptBrick {
 	return new(CalcExpBrick)
 }
+func (this *CalcExpBrick) SurplusContext() bool {
+	return false
+}
+
 func (this *CalcExpBrick) Eval(ctx interface{}, args ...interface{}) (interface{}, error) {
 	return this.calcNode.Calc(ctx)
 }

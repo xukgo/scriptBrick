@@ -81,7 +81,7 @@ func GetFuncSentences(script string) ([]string, error) {
 
 func getFuncSentence(exp string, start int) (string, error) {
 	if !checkBracketsMatch(exp) {
-		return "", fmt.Errorf("脚本括号数量不正确")
+		return "", fmt.Errorf("脚本括号数量不正确:%s", exp)
 	}
 
 	bf := new(bytes.Buffer)
@@ -99,7 +99,7 @@ func getFuncSentence(exp string, start int) (string, error) {
 			bracktSign--
 		}
 		if bracktSign < 0 {
-			return "", fmt.Errorf("表达式括号匹配格式不正确")
+			return "", fmt.Errorf("表达式括号匹配格式不正确:%s", exp)
 		}
 		bf.WriteByte(exp[i])
 	}
@@ -122,12 +122,12 @@ func checkBracketsMatch(exp string) bool {
 //把一个方法脚本分解成函数名和参数
 func UnlashScriptExpression(exp string) (string, []string, error) {
 	if !checkBracketsMatch(exp) {
-		return "", nil, fmt.Errorf("脚本括号数量不正确")
+		return "", nil, fmt.Errorf("脚本括号数量不正确:%s", exp)
 	}
 	leftIdx := strings.Index(exp, "(")
 	rightIdx := strings.LastIndex(exp, ")")
 	if leftIdx > rightIdx {
-		return "", nil, fmt.Errorf("括号顺序格式不正确")
+		return "", nil, fmt.Errorf("括号顺序格式不正确:%s", exp)
 	}
 
 	funcName := exp[:leftIdx]
@@ -148,7 +148,7 @@ func UnlashScriptExpression(exp string) (string, []string, error) {
 			bracktSign--
 		}
 		if bracktSign < 0 {
-			return "", nil, fmt.Errorf("表达式括号匹配格式不正确")
+			return "", nil, fmt.Errorf("表达式括号匹配格式不正确:%s", exp)
 		}
 
 		if bracktSign == 0 && exp[i] == ',' {

@@ -63,7 +63,7 @@ func preBuild(brick *Brick, preParam *PreConstParam) error {
 func ParseBrick(exp string) (*Brick, error) {
 	exp = strings.TrimSpace(exp)
 	if !checkBracketsMatch(exp) {
-		return nil, fmt.Errorf("脚本括号数量不正确")
+		return nil, fmt.Errorf("脚本括号数量不正确:%s", exp)
 	}
 
 	funExpArr, err := SplitScriptExpression(exp)
@@ -71,7 +71,7 @@ func ParseBrick(exp string) (*Brick, error) {
 		return nil, err
 	}
 	if len(funExpArr) == 0 {
-		return nil, fmt.Errorf("没有识别到函数")
+		return nil, fmt.Errorf("没有识别到函数:%s", exp)
 	}
 
 	var lastBrick *Brick = nil

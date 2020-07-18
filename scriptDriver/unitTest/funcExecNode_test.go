@@ -1,20 +1,48 @@
 package unitTest
 
 import (
-	"fmt"
 	"github.com/xukgo/scriptBrick/scriptDriver"
 	"github.com/xukgo/scriptBrick/scriptDriver/brickBomb"
 	"math"
-	"strconv"
 	"testing"
 )
 
+func Test_constBuild(t *testing.T) {
+	funcMap := make(map[string]scriptDriver.IScriptBrick)
+	funcMap["preEval"] = new(scriptDriver.PreBuildBrick)
+	funcMap["sum"] = new(SumObjectMinor)
+	funcMap["add"] = new(AddObjectMinor)
+	var exps []string
+	exps = append(exps, "add(sum(3,2),add(1,2.12,sum(1,1)),sum(1,2))")
+	exps = append(exps, "sum(sum(3,2),add(1,2.12,sum(1,1)),sum(1,2))")
+	exps = append(exps, "add(sum(3,2),add(1,2.12,add(1,1)),sum(1,2))")
+	exps = append(exps, "sum(sum(3,2),sum(1,2.12,add(1,1)),sum(1,2))")
+
+	for _, exp := range exps {
+		brick, err := scriptDriver.CreateBrick(funcMap, exp)
+		if err != nil {
+			t.FailNow()
+			return
+		}
+
+		val, err := brick.Build(nil)
+		if err != nil {
+			t.FailNow()
+			return
+		}
+		gap := math.Abs(float64(val.(float64)) - 13.12)
+		if gap > 0.01 {
+			t.FailNow()
+			return
+		}
+	}
+}
 func BenchmarkCalcObject1(b *testing.B) {
 	funcMap := make(map[string]scriptDriver.IScriptBrick)
 	funcMap["preEval"] = new(scriptDriver.PreBuildBrick)
 	funcMap["sum"] = new(SumObjectMinor)
-	funcMap["calc"] = new(brickBomb.CalcExpBrick)
-	exp := "sum(sum(3,2),sum(1,2.12))"
+	funcMap["add"] = new(AddObjectMinor)
+	exp := "sum(sum(3,2),sum(1,2.12),add(1,2))"
 	brick, err := scriptDriver.CreateBrick(funcMap, exp)
 	if err != nil {
 		b.Fail()
@@ -27,7 +55,7 @@ func BenchmarkCalcObject1(b *testing.B) {
 			b.Fail()
 			return
 		}
-		gap := math.Abs(float64(val.(float64)) - 8.12)
+		gap := math.Abs(float64(val.(float64)) - 11.12)
 		if gap > 0.01 {
 			b.Fail()
 			return
@@ -165,35 +193,3 @@ func BenchmarkCalcObject6(b *testing.B) {
 
 	}
 }
-
-type SumObjectMinor struct {
-}
-
-func (this *SumObjectMinor) CloneBasic() scriptDriver.IScriptBrick {
-	return this
-}
-
-func (this *SumObjectMinor) SurplusContext() bool {
-	return true
-}
-
-func (this *SumObjectMinor) Eval(ctx interface{}, args ...interface{}) (interface{}, error) {
-	var sum float64
-	for idx := range args {
-		str := fmt.Sprintf("%v", args[idx])
-		v, err := strconv.ParseFloat(str, 64)
-		if err != nil {
-			return nil, err
-		}
-		sum += v
-	}
-	return sum, nil
-}
-
-func (this *SumObjectMinor) CheckArgCount(count int) bool {
-	return count > 0
-}
-
-//func (this *SumObjectMinor) AfterInitCorrectArg(dict map[string]scriptDriver.IScriptBrick, index int, arg *scriptDriver.BrickArg) error {
-//	return nil
-//}

@@ -42,48 +42,54 @@ func constBuild(brick *Brick) (*Brick, error) {
 		return brick, nil
 	}
 
-	if brick.RealFuncMinor.SurplusContext() {
-		for idx := range brick.FuncArgs {
-			if brick.FuncArgs[idx].Func == nil {
-				continue
-			}
-			nb, err := constBuild(brick.FuncArgs[idx].Func)
+	//if brick.RealFuncMinor.SurplusContext() {
+	for idx := range brick.FuncArgs {
+		if brick.FuncArgs[idx].Func == nil {
+			continue
+		}
+		nb, err := constBuild(brick.FuncArgs[idx].Func)
+		if err != nil {
+			return brick, err
+		}
+		if _, ok := nb.RealFuncMinor.(*ConstBrick); ok {
+			val, err := nb.Build(nil)
 			if err != nil {
 				return brick, err
 			}
-			if _, ok := nb.RealFuncMinor.(*ConstBrick); ok {
-				val, err := nb.Build(nil)
-				if err != nil {
-					return brick, err
-				}
-				brick.FuncArgs[idx] = NewBrickArg(TYPE_OBJECT, val)
-			} else {
-				brick.FuncArgs[idx].Func = nb
-			}
-		}
-
-		allConstArg := true
-		for idx := range brick.FuncArgs {
-			if !brick.FuncArgs[idx].CheckIsConstValue() {
-				allConstArg = false
-			}
-		}
-
-		if allConstArg {
-			val, err := brick.Build(nil)
-			if err != nil {
-				return brick, err
-			}
-
-			resBrick := new(Brick)
-			resBrick.FuncName = "const"
-			resBrick.RealFuncMinor = NewConstBrick(val)
-			return resBrick, nil
+			brick.FuncArgs[idx] = NewBrickArg(TYPE_OBJECT, val)
+		} else {
+			brick.FuncArgs[idx].Func = nb
 		}
 	}
 
+	allConstArg := true
+	for idx := range brick.FuncArgs {
+		if brick.FuncArgs[idx].Func != nil && !brick.FuncArgs[idx].Func.RealFuncMinor.SurplusContext() {
+			allConstArg = false
+			break
+		}
+		if !brick.FuncArgs[idx].CheckIsConstValue() {
+			allConstArg = false
+			break
+		}
+	}
+
+	if allConstArg && brick.RealFuncMinor.SurplusContext() {
+		val, err := brick.Build(nil)
+		if err != nil {
+			return brick, err
+		}
+
+		resBrick := new(Brick)
+		resBrick.FuncName = "const"
+		resBrick.RealFuncMinor = NewConstBrick(val)
+		return resBrick, nil
+	}
+	//}
+
 	return brick, nil
 }
+
 func ParseBrick(exp string) (*Brick, error) {
 	exp = strings.TrimSpace(exp)
 	if !checkBracketsMatch(exp) {
@@ -142,29 +148,29 @@ func ParseBrick(exp string) (*Brick, error) {
 	return lastBrick, nil
 }
 
-func preBuild(brick *Brick, preParam *PreConstParam) error {
-	if brick == nil {
-		return nil
-	}
-	if brick.FuncName == preParam.PreFuncName {
-		val, err := brick.Build(preParam.Context)
-		if err != nil {
-			return err
-		}
-		brick.RealFuncMinor = new(PreBuildBrick)
-		brick.FuncArgs = []*BrickArg{NewBrickArg(TYPE_OBJECT, val)}
-		return nil
-	}
-
-	for idx := range brick.FuncArgs {
-		err := preBuild(brick.FuncArgs[idx].Func, preParam)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
+//func preBuild(brick *Brick, preParam *PreConstParam) error {
+//	if brick == nil {
+//		return nil
+//	}
+//	if brick.FuncName == preParam.PreFuncName {
+//		val, err := brick.Build(preParam.Context)
+//		if err != nil {
+//			return err
+//		}
+//		brick.RealFuncMinor = new(PreBuildBrick)
+//		brick.FuncArgs = []*BrickArg{NewBrickArg(TYPE_OBJECT, val)}
+//		return nil
+//	}
+//
+//	for idx := range brick.FuncArgs {
+//		err := preBuild(brick.FuncArgs[idx].Func, preParam)
+//		if err != nil {
+//			return err
+//		}
+//	}
+//
+//	return nil
+//}
 
 //func innerCheckIsExpressionArg(index int) bool {
 //	return false
